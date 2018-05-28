@@ -53,7 +53,8 @@ $straight = array(
     '¿'  => null,   '‽'  => null,   '¡' => null,
     '©'  => 'c',    '«'  => '"',    '»' => '"',
     '™' => 'TM',    '®'  => 'r',    '|' => '-',
-    '.' => '-',     '='  => '-',
+    '.' => '-',     '='  => '-',    ' ' => '-',
+    '―' => '-',     '‑' => '-',
 
     // Special characters
     'Nº' => 'number',
@@ -74,3 +75,5 @@ $transliterations = array(
     'straight' => $straight,
     'regexp' => $regexp
 );
+
+return $transliterations;

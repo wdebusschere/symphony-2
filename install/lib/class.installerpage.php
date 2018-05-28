@@ -34,6 +34,7 @@
 
             $this->setTitle($this->_page_title);
             $this->addElementToHead(new XMLElement('meta', null, array('charset' => 'UTF-8')), 1);
+            $this->addElementToHead(new XMLElement('meta', null, array('name' => 'robots', 'content' => 'noindex')), 2);
 
             $this->addStylesheetToHead(APPLICATION_URL . '/assets/css/installer.min.css', 'screen', 30);
 
@@ -107,6 +108,7 @@
 
             $this->Form->appendChild($h2);
             $this->Form->appendChild($p);
+            $this->setHttpStatus(Page::HTTP_STATUS_ERROR);
         }
 
         protected function viewRequirements()
@@ -121,6 +123,7 @@
 
                 $this->Form->appendChild($div);
             }
+            $this->setHttpStatus(Page::HTTP_STATUS_ERROR);
         }
 
         protected function viewLanguages()
@@ -174,6 +177,7 @@
             $this->Form->appendChild(
                 new XMLElement('pre', $code)
             );
+            $this->setHttpStatus(Page::HTTP_STATUS_ERROR);
         }
 
         protected function viewSuccess()
@@ -208,7 +212,12 @@
 
             $this->Form->appendChild(
                 new XMLElement('p',
-                    __('I think you and I will achieve great things together. Just one last thing: how about we remove the %s folder and secure the safety of our relationship?', array('<code>' . basename(INSTALL) . '</code>'))
+                    __('I think you and I will achieve great things together. Just one last thing: please %s to secure the safety of our relationship.', array(
+                            '<a href="' . URL . '/install/?action=remove">' .
+                            __('remove the %s folder', array('<code>' . basename(INSTALL) . '</code>')) .
+                            '</a>'
+                        )
+                    )
                 )
             );
 
@@ -220,7 +229,7 @@
 
         protected function viewConfiguration()
         {
-            /* -----------------------------------------------
+        /* -----------------------------------------------
          * Populating fields array
          * -----------------------------------------------
          */
@@ -421,6 +430,10 @@
             $Submit->appendChild(Widget::Input('action[install]', __('Install Symphony'), 'submit'));
 
             $this->Form->appendChild($Submit);
+
+            if (isset($this->_params['errors'])) {
+                $this->setHttpStatus(Page::HTTP_STATUS_BAD_REQUEST);
+            }
         }
 
         private function __appendError(array $codes, XMLElement &$element, $message = null)

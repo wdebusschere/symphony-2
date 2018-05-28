@@ -4,10 +4,11 @@
 
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/symphonycms/symphony-2/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/symphonycms/symphony-2/?branch=master)
 
-- Version: 2.6.7
-- Date: 08th February 2016
-- [Release notes](http://getsymphony.com/download/releases/version/2.6.7/)
-- [Github repository](https://github.com/symphonycms/symphony-2/tree/2.6.7)
+- Version: 2.7.6
+- Date: 18th April 2018
+- [Release notes](https://www.getsymphony.com/download/releases/version/2.7.6/)
+- [Github repository](https://github.com/symphonycms/symphony-2/tree/2.7.6)
+- [MIT Licence](https://github.com/symphonycms/symphony-2/blob/master/LICENCE)
 
 ## Contents
 
@@ -25,18 +26,18 @@
 
 ## Overview
 
-Symphony is a `PHP` & `MySQL` based CMS that utilises `XML` and `XSLT` as its core technologies. This repository represents version `2.6.7` and is considered stable.
+Symphony is a `PHP` & `MySQL` based CMS that utilises `XML` and `XSLT` as its core technologies. This repository represents version `2.7.6` and is considered stable.
 
 Useful places:
 
-- [The Symphony website](http://getsymphony.com/)
-- [The Symphony forum](http://getsymphony.com/discuss/)
+- [The Symphony website](https://www.getsymphony.com/)
+- [The Symphony forum](https://www.getsymphony.com/discuss/)
 - [Symphony Extensions](http://symphonyextensions.com/)
 - [Contributing to Symphony](https://github.com/symphonycms/symphony-2/wiki/Contributing-to-Symphony)
 
 ## Server requirements
 
-- PHP 5.3 or above
+- PHP 5.3-5.6 or 7.0-7.1
 - PHP’s LibXML module, with the XSLT extension enabled (`--with-xsl`)
 - MySQL 5.5 or above is recommended
 - A webserver (known to be used with Apache, Litespeed, Nginx and Hiawatha)
@@ -87,7 +88,7 @@ Before installation, see the [notes on file permissions](#file-permissions).
 
 ### Via the old-fashioned way
 
-1. This step assumes you downloaded a zip archive from the [Symphony website](http://getsymphony.com). Upload the following files and directories to the root directory of your website:
+1. This step assumes you downloaded a zip archive from the [Symphony website](https://www.getsymphony.com). Upload the following files and directories to the root directory of your website:
 
 	- `index.php`
 	- `/extensions`
@@ -136,7 +137,7 @@ Symphony `2.3` officially only supports updating from a `2.2.x` release. There a
 
 #### Versions prior to 2.2
 
-Symphony `2.2` introduces numerous improvements that may affect extension compatibility. Before updating, be sure to consult the [extension compatibility table](http://getsymphony.com/download/extensions/compatibility/) to verify that the extensions you’re using have all been updated for Symphony `2.2`.
+Symphony `2.2` introduces numerous improvements that may affect extension compatibility. Before updating, be sure to consult the [extension compatibility table](https://www.getsymphony.com/download/extensions/compatibility/) to verify that the extensions you’re using have all been updated for Symphony `2.2`.
 
 #### Versions prior to 2.1
 
@@ -208,3 +209,7 @@ Symphony uses [Grunt](http://gruntjs.com/) to build concatenated and minified as
 Symphony’s minified script and style files will be updated automatically when saving source files.
 
 More information: [Contributing to Symphony](https://github.com/symphonycms/symphony-2/wiki/Contributing-to-Symphony).
+
+## Responsible Security Disclosure
+
+Please follow [the guideline for security bug disclosure](https://github.com/symphonycms/symphony-2/wiki/Security-Bug-Disclosure).

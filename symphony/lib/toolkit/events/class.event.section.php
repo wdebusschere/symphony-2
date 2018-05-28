@@ -197,7 +197,7 @@ abstract class SectionEvent extends Event
      * @return string
      *  'missing' or 'invalid'
      */
-    public function __reduceType($a, $b)
+    public static function __reduceType($a, $b)
     {
         if (is_array($b)) {
             return array_reduce($b, array('SectionEvent', '__reduceType'));
@@ -471,7 +471,7 @@ abstract class SectionEvent extends Event
             $can_proceed = true;
 
             foreach ($this->filter_results as $fr) {
-                list($name, $status, $message, $attributes) = $fr;
+                list($name, $status, $message, $attributes) = array_pad($fr, 4, null);
 
                 $result->appendChild(
                     self::buildFilterElement($name, ($status ? 'passed' : 'failed'), $message, $attributes)
@@ -671,7 +671,7 @@ abstract class SectionEvent extends Event
 
             $email = Email::create();
 
-            // Huib: Exceptions are also thrown in the settings functions, not only in the send function.
+            // Exceptions are also thrown in the settings functions, not only in the send function.
             // Those Exceptions should be caught too.
             try {
                 $email->recipients = array(
@@ -724,7 +724,7 @@ abstract class SectionEvent extends Event
 
                 foreach ($messages as $recipient => $message) {
                     $xType->appendChild(
-                        new XMLElement('message', $message, array(
+                        new XMLElement('message', General::wrapInCDATA($message), array(
                             'recipient' => $recipient
                         ))
                     );

@@ -50,6 +50,13 @@ class Log
     private $_archive = false;
 
     /**
+     * The filter applied to logs before they are written.
+     * @since Symphony 2.7.1
+     * @var integer
+     */
+    private $_filter = -1;
+
+    /**
      * The date format that this Log entries will be written as. Defaults to
      * Y/m/d H:i:s.
      * @var string
@@ -119,7 +126,19 @@ class Log
      */
     public function setMaxSize($size)
     {
-        $this->_max_size = $size;
+        $this->_max_size = General::intval($size);
+    }
+
+    /**
+     * Setter for the `$_filter`.
+     *
+     * @since Symphony 2.7.1
+     * @param mixed $filter
+     *  The filter used on log $type parameter.
+     */
+    public function setFilter($filter)
+    {
+        $this->_filter = General::intval($filter);
     }
 
     /**
@@ -132,6 +151,9 @@ class Log
      */
     public function setDateTimeFormat($format)
     {
+        if (empty($format)) {
+            throw new Exception('Datetime format can not be empty');
+        }
         $this->_datetime_format = $format;
     }
 
@@ -182,7 +204,8 @@ class Log
      * @param string $message
      *  The message to add to the Log
      * @param integer $type
-     *  A PHP error constant for this message, defaults to E_NOTICE
+     *  A PHP error constant for this message, defaults to E_NOTICE.
+     *  If null or 0, will be converted to E_ERROR.
      * @param boolean $writeToLog
      *  If set to true, this message will be immediately written to the log. By default
      *  this is set to false, which means that it will only be added to the array ready
@@ -193,12 +216,16 @@ class Log
      * @param boolean $append
      *  If set to true, the given `$message` will be append to the previous log
      *  message found in the `$_log` array
-     * @return mixed
+     * @return boolean|null
      *  If `$writeToLog` is passed, this function will return boolean, otherwise
      *  void
      */
     public function pushToLog($message, $type = E_NOTICE, $writeToLog = false, $addbreak = true, $append = false)
     {
+        if (!$type) {
+            $type = E_ERROR;
+        }
+
         if ($append) {
             $this->_log[count($this->_log) - 1]['message'] =  $this->_log[count($this->_log) - 1]['message'] . $message;
         } else {
@@ -206,7 +233,7 @@ class Log
             $message = DateTimeObj::get($this->_datetime_format) . ' > ' . $this->__defineNameString($type) . ': ' . $message;
         }
 
-        if ($writeToLog) {
+        if ($writeToLog && ($this->_filter === -1 || ($this->_filter & $type))) {
             return $this->writeToLog($message, $addbreak);
         }
     }
@@ -236,11 +263,16 @@ class Log
     }
 
     /**
-     * Given an Exception, this function will add it to the internal `$_log`
+     * Given an Throwable, this function will add it to the internal `$_log`
      * so that it can be written to the Log.
      *
      * @since Symphony 2.3.2
-     * @param Exception $exception
+     *
+     * @since Symphony 2.7.0
+     *  This function works with both Exceptions and Throwable
+     *  Supporting both PHP 5.6 and 7 forces use to not qualify the $e parameter
+     *
+     * @param Throwable $exception
      * @param boolean $writeToLog
      *  If set to true, this message will be immediately written to the log. By default
      *  this is set to false, which means that it will only be added to the array ready
@@ -251,11 +283,11 @@ class Log
      * @param boolean $append
      *  If set to true, the given `$message` will be append to the previous log
      *  message found in the `$_log` array
-     * @return mixed
+     * @return boolean|null
      *  If `$writeToLog` is passed, this function will return boolean, otherwise
      *  void
      */
-    public function pushExceptionToLog(Exception $exception, $writeToLog = false, $addbreak = true, $append = false)
+    public function pushExceptionToLog($exception, $writeToLog = false, $addbreak = true, $append = false)
     {
         $message = sprintf(
             '%s %s - %s on line %d of %s',
@@ -267,6 +299,78 @@ class Log
         );
 
         return $this->pushToLog($message, $exception->getCode(), $writeToLog, $addbreak, $append);
+    }
+
+    /**
+     * Given an method name, this function will properly format a message
+     * and pass it down to `pushToLog()`
+     *
+     * @see Log::pushToLog()
+     * @since Symphony 2.7.0
+     * @param string $method
+     *  The name of the deprecated call
+     * @param string $alternative
+     *  The name of the new method to use
+     * @param array $opts (optional)
+     * @param string $opts.message-format
+     *  The sprintf format to apply to $method
+     * @param string $opts.alternative-format
+     *  The sprintf format to apply to $alternative
+     * @param string $opts.removal-format
+     *  The sprintf format to apply to $opts.removal-version
+     * @param string $opts.removal-version
+     *  The Symphony version at which the removal is planned
+     * @param boolean $opts.write-to-log
+     *  If set to true, this message will be immediately written to the log. By default
+     *  this is set to false, which means that it will only be added to the array ready
+     *  for writing
+     * @param boolean $opts.addbreak
+     *  To be used in conjunction with `$opts.write-to-log`, this will add a line break
+     *  before writing this message in the log file. Defaults to true.
+     * @param boolean $opts.append
+     *  If set to true, the given `$message` will be append to the previous log
+     *  message found in the `$_log` array
+     * @param boolean $opts.addtrace
+     *  If set to true, the caller of the function will be added. Defaults to true.
+     * @return boolean|null
+     *  If `$writeToLog` is passed, this function will return boolean, otherwise
+     *  void
+     */
+    public function pushDeprecateWarningToLog($method, $alternative = null, array $opts = array())
+    {
+        $defaults = array(
+            'message-format' => __('The method `%s` is deprecated.'),
+            'alternative-format' => __('Please use `%s` instead.'),
+            'removal-format' => __('It will be removed in Symphony %s.'),
+            'removal-version' => '3.0.0',
+            'write-to-log' => true,
+            'addbreak' => true,
+            'append' => false,
+            'addtrace' => true,
+        );
+        $opts = array_replace($defaults, $opts);
+
+        $message = sprintf($opts['message-format'], $method);
+        if (!empty($opts['removal-version'])) {
+            $message .= ' ' . sprintf($opts['removal-format'], $opts['removal-version']);
+        }
+        if (!empty($alternative)) {
+            $message .= ' ' . sprintf($opts['alternative-format'], $alternative);
+        }
+        if ($opts['addtrace'] === true) {
+            if (version_compare(phpversion(), '5.4', '<')) {
+                $trace = debug_backtrace(0);
+            } else {
+                $trace = debug_backtrace(0, 3);
+            }
+            $index = isset($trace[2]['class']) ? 2 : 1;
+            $caller = $trace[$index]['class'] . '::' . $trace[$index]['function'] . '()';
+            $file = basename($trace[$index - 1]['file']);
+            $line = $trace[$index - 1]['line'];
+            $message .= " Called from `$caller` in $file at line $line";
+        }
+
+        return $this->pushToLog($message, E_DEPRECATED, $opts['write-to-log'], $opts['addbreak'], $opts['append']);
     }
 
     /**
@@ -316,9 +420,7 @@ class Log
         }
 
         if ($flag == self::OVERWRITE) {
-            if (file_exists($this->_log_path) && is_writable($this->_log_path)) {
-                General::deleteFile($this->_log_path);
-            }
+            General::deleteFile($this->_log_path);
 
             $this->writeToLog('============================================', true);
             $this->writeToLog('Log Created: ' . DateTimeObj::get('c'), true);

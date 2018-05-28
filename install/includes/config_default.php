@@ -22,6 +22,7 @@
             'session_gc_divisor' => '10',
             'cell_truncation_length' => '75',
             'enable_xsrf' => 'yes',
+            'error_reporting_all' => 'no',
         ),
         ########
 
@@ -30,6 +31,7 @@
         'log' => array(
             'archive' => '1',
             'maxsize' => '102400',
+            'filter' => E_ALL ^ E_DEPRECATED,
         ),
         ########
 

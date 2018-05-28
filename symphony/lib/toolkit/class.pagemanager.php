@@ -158,7 +158,7 @@ class PageManager
      *  handle' before the Page was renamed.
      * @throws Exception
      * @return boolean
-     *  True when the page files have been created successfully, false otherwise.
+     *  true when the page files have been created successfully, false otherwise.
      */
     public static function createPageFiles($new_path, $new_handle, $old_path = null, $old_handle = null)
     {
@@ -193,9 +193,7 @@ class PageManager
 
         if (PageManager::writePageFiles($new, $data)) {
             // Remove the old file, in the case of a rename
-            if (file_exists($old)) {
-                General::deleteFile($old);
-            }
+            General::deleteFile($old);
 
             /**
              * Just after a Page Template is saved after been created.
@@ -224,7 +222,7 @@ class PageManager
      * @param string $data
      *  The contents of the template
      * @return boolean
-     *  True when written successfully, false otherwise
+     *  true when written successfully, false otherwise
      */
     public static function writePageFiles($path, $data)
     {
@@ -768,7 +766,7 @@ class PageManager
      * @param string $type
      *  The Page Type to look for in `tbl_page_types`.
      * @return boolean
-     *  True if the type is used, false otherwise
+     *  true if the type is used, false otherwise
      */
     public static function hasPageTypeBeenUsed($page_id = null, $type)
     {
@@ -793,7 +791,7 @@ class PageManager
      * @param integer $page_id
      *  The ID of the Page to check
      * @return boolean
-     *  True if the page has children, false otherwise
+     *  true if the page has children, false otherwise
      */
     public static function hasChildPages($page_id = null)
     {
@@ -952,7 +950,7 @@ class PageManager
      * @param string $handle
      *  The datasource handle
      * @return boolean
-     *  True if used, false if not
+     *  true if used, false if not
      */
     public static function isDataSourceUsed($handle)
     {
@@ -965,7 +963,7 @@ class PageManager
      * @param string $handle
      *  The event handle
      * @return boolean
-     *  True if used, false if not
+     *  true if used, false if not
      */
     public static function isEventUsed($handle)
     {

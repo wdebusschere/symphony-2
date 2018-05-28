@@ -154,7 +154,7 @@ class Author
      */
     public function createAuthToken()
     {
-        return General::substrmin(SHA1::hash($this->get('username') . $this->get('password')), 8);
+        return General::substrmin(sha1($this->get('username') . $this->get('password')), 8);
     }
 
     /**
@@ -189,12 +189,19 @@ class Author
             ));
         }
 
+        // Include validators
+        include TOOLKIT . '/util.validators.php';
+
         // Check that Email is provided
         if (is_null($this->get('email'))) {
             $errors['email'] = __('E-mail address is required');
 
             // Check Email is valid
-        } elseif (!General::validateString($this->get('email'), $validators['email'])) {
+        } elseif (isset($validators['email']) && !General::validateString($this->get('email'), $validators['email'])) {
+            $errors['email'] = __('E-mail address entered is invalid');
+
+            // Check Email is valid, fallback when no validator found
+        } elseif (!isset($validators['email']) && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = __('E-mail address entered is invalid');
 
             // Check that if an existing Author changes their email address that
@@ -265,6 +272,7 @@ class Author
      * `$this->_fields` values and adds them to the database using either the
      * `AuthorManager::edit` or `AuthorManager::add` functions. An
      * existing user is determined by if an ID is already set.
+     * When the database is updated successfully, the id of the author is set.
      *
      * @see toolkit.AuthorManager#add()
      * @see toolkit.AuthorManager#edit()
@@ -285,7 +293,11 @@ class Author
                 return false;
             }
         } else {
-            return AuthorManager::add($this->get());
+            $id = AuthorManager::add($this->get());
+            if ($id) {
+                $this->set('id', $id);
+            }
+            return $id;
         }
     }
 }
