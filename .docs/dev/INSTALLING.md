@@ -10,7 +10,7 @@ Before installation, read the [notes on file permissions](#file-permissions).
 
 1. Clone the Symphony Git repository to the desired location:
 
-		git clone git://github.com/symphonycms/symphonycms.git target-directory
+		git clone git://github.com/symphonycms/symphony-2.git target-directory
 		cd target-directory
 
 	(Replace `target-directory` with your chosen new directory name.)
